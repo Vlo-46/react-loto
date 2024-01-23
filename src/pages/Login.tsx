@@ -32,9 +32,9 @@ export default function Login() {
         validationSchema: Yup.object({
             email: Yup.string().email('Invalid email').required('Invalid email'),
             password: Yup.string()
-              .min(5, 'Too Short!')
-              .max(15, 'Too Long!')
-              .required('Invalid password'),
+                .min(5, 'Too Short!')
+                .max(15, 'Too Long!')
+                .required('Invalid password'),
         }),
         onSubmit: (values) => {
             handleOnSubmit(values)
@@ -74,53 +74,53 @@ export default function Login() {
     const handleOnSubmit = (values: IFormData) => {
         try {
             axios.post(`${process.env.REACT_APP_SERVER_API_URI}/auth/login`, values)
-              .then(res => {
-                  if (res.data.error) {
-                      errorHandler()
-                  } else {
-                      localStorage.setItem(process.env.REACT_APP_AUTH_JWT as string, res.data.token)
-                      navigate('/profile')
-                  }
-              })
-              .catch(e => {
-                  errorHandler()
-              })
+                .then(res => {
+                    if (res.data.error) {
+                        errorHandler()
+                    } else {
+                        localStorage.setItem(process.env.REACT_APP_AUTH_JWT as string, res.data.token)
+                        navigate('/profile')
+                    }
+                })
+                .catch(e => {
+                    errorHandler()
+                })
         } catch (e) {
             errorHandler()
         }
     }
     return (
-      <>
-          <Box
-            sx={{
-                width: 700,
-                mx: 'auto',
-                my: 4,
-                py: 3,
-                px: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                borderRadius: 5,
-                boxShadow: 'md',
-                border: '1px solid #ccc',
-            }}
-          >
-              <Container component="main" maxWidth="xs">
-                  <CssBaseline/>
-                  {
-                      authError
-                        ? <Alert severity="error">Something went wrong</Alert>
-                        : null
-                  }
-                  <Form formik={formik}
-                        handleNavigate={handleNavigate}
-                        fields={fields}
-                        navigationData={navigationData}
-                        page={'Login'}
-                  />
-              </Container>
-          </Box>
-      </>
+        <>
+            <Box
+                sx={{
+                    width: 700,
+                    mx: 'auto',
+                    my: 4,
+                    py: 3,
+                    px: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    borderRadius: 5,
+                    boxShadow: 'md',
+                    border: '1px solid #ccc',
+                }}
+            >
+                <Container component="main" maxWidth="xs">
+                    <CssBaseline/>
+                    {
+                        authError
+                            ? <Alert severity="error">Something went wrong</Alert>
+                            : null
+                    }
+                    <Form formik={formik}
+                          handleNavigate={handleNavigate}
+                          fields={fields}
+                          navigationData={navigationData}
+                          page={'Login'}
+                    />
+                </Container>
+            </Box>
+        </>
     )
 }

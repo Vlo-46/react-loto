@@ -9,29 +9,29 @@ interface ITicketProps {
 
 export default function Ticket({cell, setSelected}: ITicketProps) {
     return (
-      <Grid item>
-          <Paper style={{
-              padding: 10,
-              width: '50px',
-              height: '50px',
-              cursor: 'pointer',
-              backgroundColor: cell?.selected ? 'lightgray' : 'white',
-              // background: cell?.notMarked ? 'red' : 'white'
-          }}
-                 elevation={4}
-                 onClick={setSelected(cell)}
-          >
-              {cell ? (
-                <Typography variant="body1" sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    color: cell?.notMarked ? 'white' : 'black'
-                }}>{cell.selected ? 'X' : cell.num}</Typography>
-              ) : (
-                <Typography variant="body1"></Typography>
-              )}
-          </Paper>
-      </Grid>
+        <Grid item>
+            <Paper style={{
+                padding: 10,
+                width: '50px',
+                height: '50px',
+                cursor: 'pointer',
+                backgroundColor: cell?.selected ? 'lightgray' : 'white',
+            }}
+                   elevation={4}
+                   onClick={setSelected(cell)}
+            >
+                {cell ? (
+                    <Typography variant="body1" sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        color: cell.selected ? 'green' : cell?.notMarked ? 'red' : 'black',
+                        fontWeight: cell.notMarked || cell.selected ? 'bold' : ''
+                    }}>{cell.selected ? 'X' : cell.num}</Typography>
+                ) : (
+                    <Typography variant="body1"></Typography>
+                )}
+            </Paper>
+        </Grid>
     )
 }

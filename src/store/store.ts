@@ -1,18 +1,12 @@
-import {createStore, applyMiddleware, AnyAction, Store} from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension';
-import {thunk, ThunkDispatch} from 'redux-thunk';
+import { createStore, applyMiddleware, AnyAction, Store } from 'redux';
+import {thunk, ThunkDispatch } from 'redux-thunk';
 import rootReducer from './reducers';
-import {IPoem} from "../interfaces/poem";
 
-type RootState = {
-    poems: {
-        poems: IPoem[];
-    };
-};
+type RootState = ReturnType<typeof rootReducer>;
 
 const store: Store<RootState, AnyAction> = createStore(
-  rootReducer,
-  composeWithDevTools(applyMiddleware(thunk as ThunkDispatch<RootState, undefined, AnyAction>))
+    rootReducer,
+    applyMiddleware(thunk as ThunkDispatch<RootState, undefined, AnyAction>)
 );
 
 export default store;

@@ -10,10 +10,10 @@ interface ITicketsProps {
 
 export default function Tickets({row, setSelected}: ITicketsProps) {
     return (
-      <Grid container item spacing={1} sx={{mb: 1}}>
-          {row.map((cell, cellIndex: number) => (
-            <Ticket cell={cell} key={cellIndex} setSelected={setSelected}/>
-          ))}
-      </Grid>
+        <Grid container item spacing={1} sx={{mb: 1}}>
+            {row.map((cell, cellIndex: number) => (
+                <Ticket cell={cell} key={cellIndex} setSelected={setSelected}/>
+            ))}
+        </Grid>
     )
 }

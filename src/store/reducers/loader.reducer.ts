@@ -15,7 +15,7 @@ export const loaderReducer = (state = initialState, action: ILoaderAction) => {
     }
 }
 
-interface ILoaderAction {
+export interface ILoaderAction {
     type: string
     loading: boolean
 }

@@ -1,22 +1,14 @@
-import { combineReducers } from 'redux';
-import { poemsReducer } from './poems.reducer'
+import { combineReducers, Reducer } from 'redux';
 import { loaderReducer } from "./loader.reducer";
-import { weatherReducer } from "./weather.reducer";
-import {IWeatherState} from "../../interfaces/weather";
-import {IPoemState} from "../../interfaces/poem";
 
-export interface IRootReducer {
-    poems: IPoemState
+export interface IRootState {
     loading: {
-        loaded: boolean
-    }
-    weather: IWeatherState
+        loaded: boolean;
+    };
 }
 
-const rootReducer = combineReducers({
-    poems: poemsReducer,
+const rootReducer: Reducer<any, any> = combineReducers({
     loading: loaderReducer,
-    weather: weatherReducer
 });
 
 export default rootReducer;

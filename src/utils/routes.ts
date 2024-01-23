@@ -8,12 +8,6 @@ export const routes: IRoutes[] = [
         isActive: true,
     },
     {
-        id: "poems-page",
-        href: "/poems",
-        name: "Poems",
-        isActive: false,
-    },
-    {
         id: "login-page",
         href: "/login",
         name: "Login",

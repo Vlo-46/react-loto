@@ -1,7 +1,6 @@
 const allowedItems: number[] = Array.from(Array(99).keys()).slice(1)
 const ticketsLength: number = 3;
 const allowedItemsInOneTicket: number = 15;
-const allowedDuplicateItems: number = 3;
 
 function createEmptyTicketsTickets() {
     let array: any = []
