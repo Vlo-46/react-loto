@@ -1,0 +1,10 @@
+export const SHOW_LOADER = 'SHOW_LOADER'
+export const HIDE_LOADER = 'HIDE_LOADER'
+
+export const GET_POEMS = 'GET_POEMS'
+export const GET_SINGLE_POEM = 'GET_SINGLE_POEM'
+export const REMOVE_POEM = 'REMOVE_POEM'
+export const UPDATE_POEM = 'UPDATE_POEM'
+
+export const GET_WEATHER = 'GET_WEATHER'
+export const SET_SEARCHED_COUNTRY = 'SET_SEARCHED_COUNTRY'
