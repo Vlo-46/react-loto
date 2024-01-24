@@ -87,7 +87,7 @@ export default function DrawerAppBar(props: Props) {
                     sx={{flexGrow: 1, display: {xs: 'none', sm: 'block', cursor: 'pointer'}}}
                     onClick={handleNavigate(routes[0])}
                   >
-                      LOGO
+                      LOTO LOGO
                   </Typography>
                   <Box sx={{display: {xs: 'none', sm: 'block'}}}>
                       {

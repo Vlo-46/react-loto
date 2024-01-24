@@ -33,6 +33,6 @@ export const routes: IRoutes[] = [
         href: '/loto',
         name: "Loto",
         isActive: false,
-        needToLogin: false
+        needToLogin: true
     }
 ]

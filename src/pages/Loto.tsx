@@ -4,6 +4,8 @@ import io from 'socket.io-client';
 import {createTickets, generateExpectedNumbers, ICub} from "../helpers/loto";
 import Tickets from "../components/loto/Tickets";
 import BlockOfExpectedNumbers from "../components/loto/BlockOfExpectedNumbers";
+import {useNavigate} from "react-router-dom";
+import {isAuth} from "../helpers/isAuth";
 
 interface IConnectedUser {
     name: string
@@ -11,6 +13,9 @@ interface IConnectedUser {
 }
 
 export default function Loto() {
+    const navigate = useNavigate()
+    const isAuthenticated = isAuth()
+
     const result = createTickets()
     const generatedNumbers = generateExpectedNumbers();
 
@@ -24,6 +29,13 @@ export default function Loto() {
     const [endGame, setEndgame] = useState<null | string>(null)
     const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
     const [currentUser, setCurrentUser] = useState<IConnectedUser | null>(null)
+
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate]);
 
     useEffect(() => {
         const socket = io('http://localhost:5000');
