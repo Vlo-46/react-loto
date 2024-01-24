@@ -9,17 +9,17 @@ import DrawerAppBar from "./layout/DrawerAppBar";
 
 function App() {
     return (
-        <Router>
-            <DrawerAppBar>
-                <Routes>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                    <Route path="/profile" element={<Profile/>}/>
-                    <Route path="/loto" element={<Loto/>}/>
-                </Routes>
-            </DrawerAppBar>
-        </Router>
+      <Router>
+          <DrawerAppBar>
+              <Routes>
+                  <Route path="/" element={<Home/>}/>
+                  <Route path="/login" element={<Login/>}/>
+                  <Route path="/register" element={<Register/>}/>
+                  <Route path="/profile" element={<Profile/>}/>
+                  <Route path="/loto" element={<Loto/>}/>
+              </Routes>
+          </DrawerAppBar>
+      </Router>
     );
 }
 

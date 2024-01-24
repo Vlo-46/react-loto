@@ -29,7 +29,7 @@ export function createTickets() {
 
 function parseToCorrectStructure(tickets: any[]) {
     const generateColumn = () => {
-        const column = Array.from({ length: 5 }, () => ({
+        const column = Array.from({length: 5}, () => ({
             notMarked: false,
             selected: false,
             num: allowedItems[Math.floor(Math.random() * 99)]

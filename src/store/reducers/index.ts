@@ -1,5 +1,5 @@
-import { combineReducers, Reducer } from 'redux';
-import { loaderReducer } from "./loader.reducer";
+import {combineReducers, Reducer} from 'redux';
+import {loaderReducer} from "./loader.reducer";
 
 export interface IRootState {
     loading: {

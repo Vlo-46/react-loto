@@ -7,11 +7,11 @@ const initialState: { loaded: boolean } = {
 export const loaderReducer = (state = initialState, action: ILoaderAction) => {
     switch (action.type) {
         case SHOW_LOADER:
-            return { ...state, loaded: false }
+            return {...state, loaded: false}
         case HIDE_LOADER:
-            return { ...state, loaded: true }
+            return {...state, loaded: true}
         default:
-          return state
+            return state
     }
 }
 

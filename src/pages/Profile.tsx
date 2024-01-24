@@ -1,16 +1,16 @@
-// import {isAuth} from "../helpers/isAuth";
-// import {useEffect} from "react";
-// import {useNavigate} from "react-router-dom";
+import {isAuth} from "../helpers/isAuth";
+import {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 
 export default function Profile() {
-    // const navigate = useNavigate()
-    //
-    // const isAuthenticated = isAuth()
-    // useEffect(() => {
-    //     if (!isAuthenticated) {
-    //         navigate('/')
-    //     }
-    // }, [isAuthenticated, navigate]);
+    const navigate = useNavigate()
+
+    const isAuthenticated = isAuth()
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
       <>
