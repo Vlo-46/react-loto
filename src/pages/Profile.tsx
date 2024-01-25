@@ -12,6 +12,10 @@ export default function Profile() {
         }
     }, [isAuthenticated, navigate]);
 
+    useEffect(() => {
+        // axios.get(`${process.env.REACT_APP_SERVER_API_URI}/auth/me`)
+    }, [])
+
     return (
       <>
           <h1>profile page user</h1>
