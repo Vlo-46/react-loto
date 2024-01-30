@@ -4,3 +4,9 @@ export interface IFormField {
     label: string
     type: string
 }
+
+export interface IAxiosConfig {
+    headers: {
+        Authorization: string
+    }
+}
