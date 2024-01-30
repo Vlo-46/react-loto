@@ -9,11 +9,10 @@ interface IRoomInterface {
 export default function Room({ room, handleJoin }: IRoomInterface) {
     return (
       <TableRow
-        key={room.roomId}
         sx={{'&:last-child td, &:last-child th': {border: 0}}}
       >
           <TableCell component="th" scope="row">
-              {room.roomId}
+              {room.roomName}
           </TableCell>
           <TableCell>{room.users}</TableCell>
           <TableCell>
@@ -21,7 +20,7 @@ export default function Room({ room, handleJoin }: IRoomInterface) {
                 variant="outlined"
                 color="primary"
                 disabled={room.users >= 5}
-                onClick={() => handleJoin(room.roomId)}
+                onClick={() => handleJoin(room._id)}
               >
                   {room.users >= 5 ? "Full" : "Join"}
               </Button>

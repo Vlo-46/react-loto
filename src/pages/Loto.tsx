@@ -4,30 +4,59 @@ import {
     Box,
     LinearProgress
 } from "@mui/material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import Rooms from "../components/loto/rooms";
+import Rooms from "../components/loto/Rooms";
 import {IRoom} from "../interfaces/global";
 import CreateRoom from "../components/loto/CreateRoom";
-
-function createData(
-  roomId: string,
-  users: number
-): IRoom {
-    return {roomId, users};
-}
+import io from "socket.io-client";
 
 export default function Loto() {
     const navigate = useNavigate()
-    const [creatingRoom, setCreatingRoom] = useState<boolean>(false)
 
-    const [rooms, setRooms] = useState<IRoom[]>([
-        createData('Room 1', 1),
-        createData('Room 2', 5),
-        createData('Room 3', 4),
-        createData('Room 4', 2),
-        createData('Room 5', 1),
-    ])
+    const [socket, setSocket] = useState<any>(null);
+    const [creatingRoom, setCreatingRoom] = useState<boolean>(false)
+    const [rooms, setRooms] = useState<IRoom[]>([])
+
+    useEffect(() => {
+        const socket = io('http://localhost:5000');
+        setSocket(socket);
+
+        if (socket) {
+            socket.emit('getRooms')
+        }
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        if (socket) {
+            socket.on('rooms', (rooms: any) => {
+                setRooms(() => {
+                    return rooms
+                })
+            })
+        }
+
+        if (socket) {
+            socket.on('createdRoom', (room: IRoom) => {
+                setRooms((prevState) => {
+                    const rooms = [...prevState]
+                    rooms.push(room)
+                    return rooms
+                })
+                setCreatingRoom(false)
+            })
+        }
+
+        return () => {
+            if (socket) {
+                socket.off('rooms');
+                socket.off('createdRoom');
+            }
+        };
+    }, [socket]);
 
     const handleJoin = (roomId: string) => {
         navigate(`/loto/${roomId}`)
@@ -35,15 +64,9 @@ export default function Loto() {
 
     const handleCreateRoom = (roomName: string) => {
         setCreatingRoom(true)
-        setRooms((prevState) => {
-            const prevRooms = [...prevState]
-            prevRooms.push(createData(roomName, 1))
-            return prevRooms
-        })
-        setTimeout(() => {
-            handleJoin(roomName)
-        }, 3000)
+        socket.emit('createRoom', roomName)
     }
+
 
     return (
       <>
@@ -62,7 +85,7 @@ export default function Loto() {
                   {
                       rooms.length
                         ? <Rooms rooms={rooms} handleJoin={handleJoin}/>
-                        : <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+                        : <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400}}>
                             <Typography variant="h5">No rooms yet</Typography>
                         </Box>
                   }

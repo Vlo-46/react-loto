@@ -21,7 +21,7 @@ export default function Rooms({ rooms, handleJoin }: IRoomsInterface) {
                   </TableHead>
                   <TableBody>
                       {rooms.map((room) => (
-                        <Room room={room} handleJoin={handleJoin} key={room.roomId}/>
+                        <Room room={room} handleJoin={handleJoin} key={room._id}/>
                       ))}
                   </TableBody>
               </Table>

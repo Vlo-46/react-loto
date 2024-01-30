@@ -12,6 +12,9 @@ export interface IAxiosConfig {
 }
 
 export interface IRoom {
-    roomId: string
+    _id: string
     users: number
+    roomName: string
+    createdAt?: string
+    updatedAt?: string
 }
