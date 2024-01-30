@@ -4,8 +4,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
-import Loto from "./pages/Loto";
+import LotoGame from "./pages/LotoGame";
 import DrawerAppBar from "./layout/DrawerAppBar";
+import Loto from "./pages/Loto";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                   <Route path="/register" element={<Register/>}/>
                   <Route path="/profile" element={<Profile/>}/>
                   <Route path="/loto" element={<Loto/>}/>
+                  <Route path="/loto/:roomId" element={<LotoGame/>}/>
               </Routes>
           </DrawerAppBar>
       </Router>

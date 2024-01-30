@@ -10,3 +10,8 @@ export interface IAxiosConfig {
         Authorization: string
     }
 }
+
+export interface IRoom {
+    roomId: string
+    users: number
+}
