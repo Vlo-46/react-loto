@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import {Box, Grid, Alert, Button} from '@mui/material'
 import Tickets from "../components/loto/Tickets";
 import BlockOfExpectedNumbers from "../components/loto/BlockOfExpectedNumbers";
-import {createTickets, generateExpectedNumbers, ICub} from "../helpers/loto";
+import {ICub} from "../helpers/loto";
 import {isAuth} from "../helpers/isAuth";
 import axios from "axios";
 import {IAxiosConfig} from "../interfaces/global";
@@ -18,15 +18,12 @@ export default function LotoGame() {
     const navigate = useNavigate()
     const isAuthenticated = isAuth()
 
-    const result = createTickets()
-    const generatedNumbers = generateExpectedNumbers();
-
     const [socket, setSocket] = useState<any>(null);
-    const [schema] = useState(result)
-    const [clonedData, setClonedData] = useState(schema)
+    const [schema, setSchema] = useState([])
+    const [clonedData, setClonedData] = useState<any>([])
     const [prevNumber, setPrevNumber] = useState<number | null>(null)
     const [intervalId, setIntervalId] = useState<any>(null);
-    const [expectedNumbers, setExpectedNumbers] = useState<number[]>(generatedNumbers);
+    const [expectedNumbers, setExpectedNumbers] = useState<number[]>([]);
     const [startGame, setStartGame] = useState<boolean>(false)
     const [endGame, setEndgame] = useState<null | string>(null)
     const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
@@ -68,22 +65,30 @@ export default function LotoGame() {
     useEffect(() => {
         if (socket) {
             socket.on('updateUsers', (updatedUsers: IConnectedUser[]) => {
-                console.log(updatedUsers)
-                setConnectedUsers(updatedUsers)
-            });
-        }
-
-        if (socket) {
-            socket.on('gameOver', (winner: string) => {
-                clearInterval(intervalId);
-                setIntervalId(null);
-                setEndgame(`Game over. ${winner} won!`)
+                // console.log(updatedUsers)
+                // setConnectedUsers(updatedUsers)
             });
         }
 
         if (socket) {
             socket.on('startGame', (bool: boolean) => {
                 setStartGame(() => bool)
+            })
+        }
+
+        if (socket) {
+            socket.on('userExist', () => {
+                navigate('/loto')
+            })
+        }
+
+        if (socket) {
+            socket.on('roomData', (data: any) => {
+                setExpectedNumbers(data.expectedNumbers)
+                setConnectedUsers(data.users)
+                setSchema(data.tickets.data)
+                setClonedData(data.tickets.data)
+                console.log(data)
             })
         }
 
@@ -116,7 +121,7 @@ export default function LotoGame() {
     }, [startGame]);
 
     useEffect(() => {
-        checkNotMarkedItems();
+        // checkNotMarkedItems();
     }, [prevNumber]);
 
     const handleStartGame = () => {
@@ -213,7 +218,12 @@ export default function LotoGame() {
                       </Grid>
                       : <BlockOfExpectedNumbers expectedNumbers={expectedNumbers}/>
               }
-              {renderSchema(clonedData)}
+              {
+                  clonedData.length
+                    ? renderSchema(clonedData)
+                    : null
+              }
+
           </Box>
       </>
     )
