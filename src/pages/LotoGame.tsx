@@ -1,14 +1,16 @@
 import React, {MouseEvent, useEffect, useState} from 'react'
-import {Box, Grid, Alert, Button} from '@mui/material'
+import {useNavigate, useParams} from "react-router-dom";
 import io from 'socket.io-client';
-import {createTickets, generateExpectedNumbers, ICub} from "../helpers/loto";
+import {Box, Grid, Alert, Button} from '@mui/material'
 import Tickets from "../components/loto/Tickets";
 import BlockOfExpectedNumbers from "../components/loto/BlockOfExpectedNumbers";
-import {useNavigate} from "react-router-dom";
+import {createTickets, generateExpectedNumbers, ICub} from "../helpers/loto";
 import {isAuth} from "../helpers/isAuth";
+import axios from "axios";
+import {IAxiosConfig} from "../interfaces/global";
+import {IUser} from "../interfaces/user";
 
-interface IConnectedUser {
-    name: string
+interface IConnectedUser extends IUser {
     isReady: boolean
 }
 
@@ -30,6 +32,7 @@ export default function LotoGame() {
     const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
     const [currentUser, setCurrentUser] = useState<IConnectedUser | null>(null)
 
+    const {roomId} = useParams();
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -42,15 +45,19 @@ export default function LotoGame() {
         setSocket(socket);
 
         if (socket) {
-            const connectedUser = {
-                name: `John ${generatedNumbers[0]}`,
-                isReady: false
-            };
+            axios.get(`${process.env.REACT_APP_SERVER_API_URI}/auth/me`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem(process.env.REACT_APP_AUTH_JWT as string)}`
+                }
+            } as Partial<IAxiosConfig>)
+              .then((response) => {
+                  setCurrentUser(() => {
+                      return response.data;
+                  });
 
-            setCurrentUser((prevUser) => {
-                return connectedUser;
-            });
-            socket.emit('join', connectedUser)
+                  socket.emit('joinToRoom', {roomId, user: response.data})
+              })
+              .catch(e => console.log(e))
         }
         return () => {
             socket.emit('userDisconnect', currentUser)
@@ -61,15 +68,8 @@ export default function LotoGame() {
     useEffect(() => {
         if (socket) {
             socket.on('updateUsers', (updatedUsers: IConnectedUser[]) => {
+                console.log(updatedUsers)
                 setConnectedUsers(updatedUsers)
-            });
-        }
-
-        if (socket) {
-            socket.on('usersReady', (usersReady: boolean) => {
-                if (usersReady) {
-                    handleStartGame()
-                }
             });
         }
 
@@ -90,7 +90,6 @@ export default function LotoGame() {
         return () => {
             if (socket) {
                 socket.off('updateUsers');
-                socket.off('userReady');
                 socket.off('gameOver');
             }
         };
@@ -122,17 +121,7 @@ export default function LotoGame() {
 
     const handleStartGame = () => {
         setStartGame(true)
-        socket.emit('startGame', true)
-    }
-
-    const handleReady = () => {
-        if (connectedUsers.length <= 1) return
-
-        if (currentUser) {
-            const newUser = {...currentUser, isReady: !currentUser.isReady}
-            setCurrentUser(newUser)
-            socket.emit('ready', newUser.isReady)
-        }
+        socket.emit('startGame', roomId)
     }
 
     const setSelected = (cub: ICub | undefined) => (event: MouseEvent<HTMLElement>) => {
@@ -206,7 +195,7 @@ export default function LotoGame() {
               {
                   !!connectedUsers
                     ? connectedUsers.map((user: IConnectedUser) => <h4
-                      key={user.name}>{user.name} is {user.isReady ? 'Ready' : 'Not ready'}</h4>)
+                      key={user._id}>{user.name} {user.lastName}</h4>)
                     : null
               }
               {
@@ -219,8 +208,8 @@ export default function LotoGame() {
                               justifyContent="center" sx={{mb: 2}}>
                           <Button variant="outlined"
                                   size="small"
-                                  disabled={connectedUsers.length <= 1}
-                                  onClick={handleReady}>{currentUser?.isReady ? 'not ready' : 'ready'}</Button>
+                                  onClick={handleStartGame}
+                          >START</Button>
                       </Grid>
                       : <BlockOfExpectedNumbers expectedNumbers={expectedNumbers}/>
               }

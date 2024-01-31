@@ -7,9 +7,12 @@ import {
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import Rooms from "../components/loto/Rooms";
-import {IRoom} from "../interfaces/global";
+import {IAxiosConfig, IRoom} from "../interfaces/global";
 import CreateRoom from "../components/loto/CreateRoom";
 import io from "socket.io-client";
+import axios from "axios";
+import {IUser} from "../interfaces/user";
+import {isAuth} from "../helpers/isAuth";
 
 export default function Loto() {
     const navigate = useNavigate()
@@ -17,8 +20,26 @@ export default function Loto() {
     const [socket, setSocket] = useState<any>(null);
     const [creatingRoom, setCreatingRoom] = useState<boolean>(false)
     const [rooms, setRooms] = useState<IRoom[]>([])
+    const [user, setUser] = useState<IUser | null>(null)
+
+    const isAuthenticated = isAuth()
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate]);
 
     useEffect(() => {
+        axios.get(`${process.env.REACT_APP_SERVER_API_URI}/auth/me`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(process.env.REACT_APP_AUTH_JWT as string)}`
+            }
+        } as Partial<IAxiosConfig>)
+          .then((response) => {
+              setUser(response.data)
+          })
+          .catch(e => console.log(e))
+
         const socket = io('http://localhost:5000');
         setSocket(socket);
 
@@ -32,18 +53,8 @@ export default function Loto() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('rooms', (rooms: any) => {
+            socket.on('updateRooms', (rooms: any) => {
                 setRooms(() => {
-                    return rooms
-                })
-            })
-        }
-
-        if (socket) {
-            socket.on('createdRoom', (room: IRoom) => {
-                setRooms((prevState) => {
-                    const rooms = [...prevState]
-                    rooms.push(room)
                     return rooms
                 })
                 setCreatingRoom(false)
@@ -52,8 +63,7 @@ export default function Loto() {
 
         return () => {
             if (socket) {
-                socket.off('rooms');
-                socket.off('createdRoom');
+                socket.off('updateRooms');
             }
         };
     }, [socket]);
@@ -64,9 +74,8 @@ export default function Loto() {
 
     const handleCreateRoom = (roomName: string) => {
         setCreatingRoom(true)
-        socket.emit('createRoom', roomName)
+        socket.emit('createRoom', {roomName, user})
     }
-
 
     return (
       <>

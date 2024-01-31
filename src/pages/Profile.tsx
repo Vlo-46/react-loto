@@ -37,8 +37,8 @@ export default function Profile() {
     }>()
 
     const handleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
-        userData[event.target.name as keyof IUser] = event.target.value;
-        setUserData(userData)
+        // userData[event.target.name as keyof IUser] = event.target.value;
+        // setUserData(userData)
     }
 
     const errorHandler = (data: {

@@ -14,15 +14,15 @@ export default function Room({ room, handleJoin }: IRoomInterface) {
           <TableCell component="th" scope="row">
               {room.roomName}
           </TableCell>
-          <TableCell>{room.users}</TableCell>
+          <TableCell>{room.users?.length}</TableCell>
           <TableCell>
               <Button
                 variant="outlined"
                 color="primary"
-                disabled={room.users >= 5}
+                disabled={room.users?.length >= 5}
                 onClick={() => handleJoin(room._id)}
               >
-                  {room.users >= 5 ? "Full" : "Join"}
+                  {room.users?.length >= 5 ? "Full" : "Join"}
               </Button>
           </TableCell>
       </TableRow>

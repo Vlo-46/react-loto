@@ -1,3 +1,5 @@
+import {IUser} from "./user";
+
 export interface IFormField {
     id: string
     name: string
@@ -13,7 +15,7 @@ export interface IAxiosConfig {
 
 export interface IRoom {
     _id: string
-    users: number
+    users: IUser[]
     roomName: string
     createdAt?: string
     updatedAt?: string
