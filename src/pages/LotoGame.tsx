@@ -123,6 +123,10 @@ export default function LotoGame() {
                 } else {
                     setEndgame(`${data.winner} is winner`)
                 }
+
+                setTimeout(() => {
+                    navigate('/loto')
+                }, 3000)
             })
         }
 
