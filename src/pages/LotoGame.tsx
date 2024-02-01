@@ -18,18 +18,21 @@ export default function LotoGame() {
     const navigate = useNavigate()
     const isAuthenticated = isAuth()
 
-    const [socket, setSocket] = useState<any>(null);
-    const [schema, setSchema] = useState([])
-    const [clonedData, setClonedData] = useState<any>([])
-    const [prevNumber, setPrevNumber] = useState<number | null>(null)
-    const [intervalId, setIntervalId] = useState<any>(null);
-    const [expectedNumbers, setExpectedNumbers] = useState<number[]>([]);
-    const [startGame, setStartGame] = useState<boolean>(false)
-    const [endGame, setEndgame] = useState<null | string>(null)
-    const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
-    const [currentUser, setCurrentUser] = useState<IConnectedUser | null>(null)
-
     const {roomId} = useParams();
+
+    const [socket, setSocket] = useState<any>(null);
+
+    const [currentUser, setCurrentUser] = useState<IConnectedUser | null>(null)
+    const [clonedData, setClonedData] = useState<any>([])
+    const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
+    const [expectedNumbers, setExpectedNumbers] = useState<number[]>([]);
+
+
+    const [startGame, setStartGame] = useState<boolean>(false)
+    const [intervalId, setIntervalId] = useState<any>(null);
+    const [prevNumber, setPrevNumber] = useState<number | null>(null)
+    const [endGame, setEndgame] = useState<null | string>(null)
+
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -64,10 +67,19 @@ export default function LotoGame() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('updateUsers', (updatedUsers: IConnectedUser[]) => {
-                // console.log(updatedUsers)
-                // setConnectedUsers(updatedUsers)
-            });
+            socket.on('userExist', () => {
+                navigate('/loto')
+            })
+        }
+
+        if (socket && currentUser) {
+            socket.on('roomData', (data: any) => {
+                setExpectedNumbers(data.expectedNumbers)
+                setConnectedUsers(data.users)
+
+                const userData = data.users.find((item: any) => item._id === currentUser?._id)
+                setClonedData(userData.tickets?.data)
+            })
         }
 
         if (socket) {
@@ -76,29 +88,15 @@ export default function LotoGame() {
             })
         }
 
-        if (socket) {
-            socket.on('userExist', () => {
-                navigate('/loto')
-            })
-        }
-
-        if (socket) {
-            socket.on('roomData', (data: any) => {
-                setExpectedNumbers(data.expectedNumbers)
-                setConnectedUsers(data.users)
-                setSchema(data.tickets.data)
-                setClonedData(data.tickets.data)
-                console.log(data)
-            })
-        }
-
         return () => {
             if (socket) {
+                socket.off('userExist');
+                socket.off('roomData');
                 socket.off('updateUsers');
-                socket.off('gameOver');
+                socket.off('startGame');
             }
         };
-    }, [socket]);
+    }, [socket, currentUser]);
 
     useEffect(() => {
         if (startGame && !endGame) {
@@ -118,7 +116,7 @@ export default function LotoGame() {
                 clearInterval(interval);
             };
         }
-    }, [startGame]);
+    }, [startGame, endGame]);
 
     useEffect(() => {
         // checkNotMarkedItems();
@@ -219,7 +217,7 @@ export default function LotoGame() {
                       : <BlockOfExpectedNumbers expectedNumbers={expectedNumbers}/>
               }
               {
-                  clonedData.length
+                  clonedData?.length
                     ? renderSchema(clonedData)
                     : null
               }
