@@ -109,7 +109,8 @@ export default function LotoGame() {
 
         if (socket) {
             socket.on('expectedNumber', (number: number) => {
-                setExpectedNumber(() => {
+                setExpectedNumber((prevState) => {
+                    setPrevNumber(prevState)
                     return number
                 })
             })
@@ -150,7 +151,7 @@ export default function LotoGame() {
     }, [startGame, endGame]);
 
     useEffect(() => {
-        checkNotMarkedItems();
+        setTimeout(() => checkNotMarkedItems(), 4000)
     }, [prevNumber]);
 
     const handleStartGame = () => {
@@ -166,19 +167,9 @@ export default function LotoGame() {
     }
 
     const checkNotMarkedItems = (): void => {
-        // if (!expectedNumbers.length) {
-        //     setEndgame('Game over. You lose!')
-        // }
-
-        const updatedData = clonedData.map((data: any) => {
-            checkWinner(data)
-            return data.map((item: ICub[]) =>
-              item.map((i: ICub) =>
-                i && i.num === prevNumber && !i.selected ? {...i, notMarked: true} : i
-              )
-            )
-        });
-        setClonedData(updatedData)
+        if (socket) {
+            socket.emit('checkNotMarkedItems', {user: currentUser, roomId, num: prevNumber})
+        }
     };
 
     const checkWinner = (data: any) => {
