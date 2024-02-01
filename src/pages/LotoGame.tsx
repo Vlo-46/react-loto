@@ -26,10 +26,12 @@ export default function LotoGame() {
     const [clonedData, setClonedData] = useState<any>([])
     const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
     const [expectedNumbers, setExpectedNumbers] = useState<number[]>([]);
+    const [isRoomAuthor, setIsRoomAuthor] = useState(false)
 
 
     const [startGame, setStartGame] = useState<boolean>(false)
     const [intervalId, setIntervalId] = useState<any>(null);
+    const [expectedNumber, setExpectedNumber] = useState<number>(0)
     const [prevNumber, setPrevNumber] = useState<number | null>(null)
     const [endGame, setEndgame] = useState<null | string>(null)
 
@@ -59,8 +61,8 @@ export default function LotoGame() {
               })
               .catch(e => console.log(e))
         }
+
         return () => {
-            socket.emit('userDisconnect', currentUser)
             socket.disconnect();
         };
     }, []);
@@ -74,17 +76,35 @@ export default function LotoGame() {
 
         if (socket && currentUser) {
             socket.on('roomData', (data: any) => {
-                setExpectedNumbers(data.expectedNumbers)
-                setConnectedUsers(data.users)
+                if (data) {
+                    setConnectedUsers(data.users)
 
-                const userData = data.users.find((item: any) => item._id === currentUser?._id)
-                setClonedData(userData.tickets?.data)
+                    const userData = data.users.find((item: any) => item._id === currentUser?._id)
+
+                    setClonedData(userData.tickets?.data)
+                    setStartGame(userData.gameIsStarted)
+                    setIsRoomAuthor(data.author._id === currentUser._id)
+                }
             })
         }
 
         if (socket) {
-            socket.on('startGame', (bool: boolean) => {
+            socket.on('gameIsStarted', (bool: boolean) => {
                 setStartGame(() => bool)
+            })
+        }
+
+        if (socket) {
+            socket.on('leavingTheRoom', () => {
+                navigate('/loto')
+            })
+        }
+
+        if (socket) {
+            socket.on('expectedNumber', (number: number) => {
+                setExpectedNumber(() => {
+                    return number
+                })
             })
         }
 
@@ -101,13 +121,7 @@ export default function LotoGame() {
     useEffect(() => {
         if (startGame && !endGame) {
             const interval = setInterval(() => {
-                setExpectedNumbers((prevNumbers) => {
-                    const newNumbers = [...prevNumbers];
-                    const shiftedNumber = newNumbers.shift();
-
-                    setPrevNumber(shiftedNumber as number);
-                    return newNumbers;
-                });
+                socket.emit('expectedNumber', roomId)
             }, 4000);
 
             setIntervalId(interval);
@@ -119,11 +133,10 @@ export default function LotoGame() {
     }, [startGame, endGame]);
 
     useEffect(() => {
-        // checkNotMarkedItems();
+        checkNotMarkedItems();
     }, [prevNumber]);
 
     const handleStartGame = () => {
-        setStartGame(true)
         socket.emit('startGame', roomId)
     }
 
@@ -144,9 +157,9 @@ export default function LotoGame() {
     }
 
     const checkNotMarkedItems = (): void => {
-        if (!expectedNumbers.length) {
-            setEndgame('Game over. You lose!')
-        }
+        // if (!expectedNumbers.length) {
+        //     setEndgame('Game over. You lose!')
+        // }
 
         const updatedData = clonedData.map((data: any) => {
             checkWinner(data)
@@ -212,16 +225,16 @@ export default function LotoGame() {
                           <Button variant="outlined"
                                   size="small"
                                   onClick={handleStartGame}
+                                  disabled={!isRoomAuthor}
                           >START</Button>
                       </Grid>
-                      : <BlockOfExpectedNumbers expectedNumbers={expectedNumbers}/>
+                      : <BlockOfExpectedNumbers expectedNumber={expectedNumber}/>
               }
               {
                   clonedData?.length
                     ? renderSchema(clonedData)
                     : null
               }
-
           </Box>
       </>
     )
