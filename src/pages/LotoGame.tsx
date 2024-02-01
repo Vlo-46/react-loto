@@ -25,7 +25,6 @@ export default function LotoGame() {
     const [currentUser, setCurrentUser] = useState<IConnectedUser | null>(null)
     const [clonedData, setClonedData] = useState<any>([])
     const [connectedUsers, setConnectedUsers] = useState<IConnectedUser[]>([])
-    const [expectedNumbers, setExpectedNumbers] = useState<number[]>([]);
     const [isRoomAuthor, setIsRoomAuthor] = useState(false)
 
 
@@ -77,13 +76,21 @@ export default function LotoGame() {
         if (socket && currentUser) {
             socket.on('roomData', (data: any) => {
                 if (data) {
-                    setConnectedUsers(data.users)
+                    setConnectedUsers(() => {
+                        return data.users
+                    })
 
                     const userData = data.users.find((item: any) => item._id === currentUser?._id)
 
-                    setClonedData(userData.tickets?.data)
-                    setStartGame(userData.gameIsStarted)
-                    setIsRoomAuthor(data.author._id === currentUser._id)
+                    setClonedData(() => {
+                        return userData.tickets?.data
+                    })
+                    setStartGame(() => {
+                        return data.gameIsStarted
+                    })
+                    setIsRoomAuthor(() => {
+                        return data.author._id === currentUser._id
+                    })
                 }
             })
         }
@@ -126,7 +133,7 @@ export default function LotoGame() {
                 socket.off('startGame');
             }
         };
-    }, [socket, currentUser]);
+    }, [socket, currentUser, startGame]);
 
     useEffect(() => {
         if (startGame && !endGame) {
@@ -151,19 +158,11 @@ export default function LotoGame() {
     }
 
     const setSelected = (cub: ICub | undefined) => (event: MouseEvent<HTMLElement>) => {
-        if (!startGame || endGame || !cub) return;
+        if (!startGame || endGame || !cub || cub.num !== expectedNumber) {
+            return
+        }
 
-        const foundCub = expectedNumbers.slice(0, 1).find((num: number) => num === (cub.num as number))
-        if (!foundCub) return;
-
-        const updatedData = clonedData.map((data: any) =>
-          data.map((item: ICub[]) =>
-            item.map((i: ICub) =>
-              i && i.num === cub.num ? {...i, selected: true} : i
-            )
-          )
-        );
-        setClonedData(updatedData)
+        socket.emit('checkSelected', {user: currentUser, roomId, num: cub.num})
     }
 
     const checkNotMarkedItems = (): void => {
