@@ -108,6 +108,16 @@ export default function LotoGame() {
             })
         }
 
+        if (socket) {
+            socket.on('finishGame', (data: any) => {
+                if (!data.winners) {
+                    setEndgame('You lose!!!')
+                } else {
+                    setEndgame(`${data.winner} is winner`)
+                }
+            })
+        }
+
         return () => {
             if (socket) {
                 socket.off('userExist');

@@ -14,9 +14,10 @@ const style = {
 
 interface ICreateRoomInterface {
     handleCreateRoom: (roomName: string) => void
+    disableRoomCreation: boolean
 }
 
-export default function CreateRoom({handleCreateRoom}: ICreateRoomInterface) {
+export default function CreateRoom({handleCreateRoom, disableRoomCreation}: ICreateRoomInterface) {
     const [open, setOpen] = useState(false);
     const [roomName, setRoomName] = useState<string>('')
     const handleOpen = () => setOpen(true);
@@ -35,7 +36,7 @@ export default function CreateRoom({handleCreateRoom}: ICreateRoomInterface) {
     return (
       <div>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Button variant="contained" onClick={handleOpen}>Create Room</Button>
+              <Button variant="contained" onClick={handleOpen} disabled={disableRoomCreation}>Create Room</Button>
           </Box>
           <Modal
             open={open}

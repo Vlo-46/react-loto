@@ -21,6 +21,7 @@ export default function Loto() {
     const [creatingRoom, setCreatingRoom] = useState<boolean>(false)
     const [rooms, setRooms] = useState<IRoom[]>([])
     const [user, setUser] = useState<IUser | null>(null)
+    const [disableRoomCreation, setDisableRoomCreation] = useState<boolean>(false)
 
     const isAuthenticated = isAuth()
     useEffect(() => {
@@ -43,13 +44,14 @@ export default function Loto() {
         const socket = io('http://localhost:5000');
         setSocket(socket);
 
-        if (socket) {
+        if (socket && user) {
             socket.emit('getRooms')
+            socket.emit('canCreateRoom', user)
         }
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         if (socket) {
@@ -58,6 +60,14 @@ export default function Loto() {
                     return rooms
                 })
                 setCreatingRoom(false)
+            })
+        }
+
+        if (socket) {
+            socket.on('canCreateRoom', (bool: boolean) => {
+                setDisableRoomCreation(() => {
+                    return bool
+                })
             })
         }
 
@@ -90,7 +100,7 @@ export default function Loto() {
                         </Box>
                         : null
                   }
-                  <CreateRoom handleCreateRoom={handleCreateRoom}/>
+                  <CreateRoom handleCreateRoom={handleCreateRoom} disableRoomCreation={disableRoomCreation}/>
                   {
                       rooms.length
                         ? <Rooms rooms={rooms} handleJoin={handleJoin}/>
