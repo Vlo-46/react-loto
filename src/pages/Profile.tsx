@@ -148,10 +148,10 @@ export default function Profile() {
                                         Statistics of {user.name} {user.lastName}
                                     </Typography>
                                     <Typography variant="body1">
-                                        Wins: 0
+                                        Wins: {user.wins}
                                     </Typography>
                                     <Typography variant="body1">
-                                        Losses: 0
+                                        Losses: {user.losses}
                                     </Typography>
                                 </Grid>
                             </Grid>

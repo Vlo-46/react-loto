@@ -30,8 +30,9 @@ export default function LotoGame() {
 
     const [startGame, setStartGame] = useState<boolean>(false)
     const [intervalId, setIntervalId] = useState<any>(null);
-    const [expectedNumber, setExpectedNumber] = useState<number>(0)
-    const [prevNumber, setPrevNumber] = useState<number | null>(null)
+    const [expectedNumbers, setExpectedNumbers] = useState<number[]>([])
+    const [prevNumber, setPrevNumber] = useState<number>(0)
+    const [currentNumber, setCurrentNumber] = useState<number>(0)
     const [endGame, setEndgame] = useState<null | string>(null)
 
 
@@ -91,6 +92,16 @@ export default function LotoGame() {
                     setIsRoomAuthor(() => {
                         return data.author._id === currentUser._id
                     })
+
+                    if (!!expectedNumbers && !expectedNumbers.length && !currentNumber && !prevNumber) {
+                        setExpectedNumbers(() => {
+                            return data.expectedNumbers?.numbers
+                        })
+
+                        setCurrentNumber(() => {
+                            return expectedNumbers[0]
+                        })
+                    }
                 }
             })
         }
@@ -108,16 +119,11 @@ export default function LotoGame() {
         }
 
         if (socket) {
-            socket.on('expectedNumber', (number: number) => {
-                setExpectedNumber((prevState) => {
-                    setPrevNumber(prevState)
-                    return number
-                })
-            })
-        }
-
-        if (socket) {
             socket.on('finishGame', (data: any) => {
+                clearInterval(intervalId);
+                setIntervalId(null);
+                setExpectedNumbers([])
+                setStartGame(false)
                 if (!data.winners) {
                     setEndgame('You lose!!!')
                 } else {
@@ -134,8 +140,9 @@ export default function LotoGame() {
             if (socket) {
                 socket.off('userExist');
                 socket.off('roomData');
-                socket.off('updateUsers');
-                socket.off('startGame');
+                socket.off('gameIsStarted');
+                socket.off('leavingTheRoom');
+                socket.off('finishGame');
             }
         };
     }, [socket, currentUser, startGame]);
@@ -143,7 +150,11 @@ export default function LotoGame() {
     useEffect(() => {
         if (startGame && !endGame) {
             const interval = setInterval(() => {
-                socket.emit('expectedNumber', roomId)
+                const currentNumberIdx = expectedNumbers.indexOf(currentNumber)
+                setCurrentNumber((prevState) => {
+                    setPrevNumber(prevState)
+                    return expectedNumbers[currentNumberIdx + 1]
+                })
             }, 4000);
 
             setIntervalId(interval);
@@ -152,7 +163,7 @@ export default function LotoGame() {
                 clearInterval(interval);
             };
         }
-    }, [startGame, endGame]);
+    }, [startGame, endGame, expectedNumbers, currentNumber]);
 
     useEffect(() => {
         setTimeout(() => checkNotMarkedItems(), 4000)
@@ -163,7 +174,7 @@ export default function LotoGame() {
     }
 
     const setSelected = (cub: ICub | undefined) => (event: MouseEvent<HTMLElement>) => {
-        if (!startGame || endGame || !cub || cub.num !== expectedNumber) {
+        if (!startGame || endGame || !cub || currentNumber !== cub.num) {
             return
         }
 
@@ -171,8 +182,17 @@ export default function LotoGame() {
     }
 
     const checkNotMarkedItems = (): void => {
+
         if (socket) {
-            socket.emit('checkNotMarkedItems', {user: currentUser, roomId, num: prevNumber})
+            if (expectedNumbers.length) {
+                const currentNumberIdx = expectedNumbers.indexOf(currentNumber)
+
+                if (currentNumberIdx + 1 === expectedNumbers.length) {
+                    socket.emit('gameIsFinished', {users: connectedUsers, roomId})
+                } else {
+                    socket.emit('checkNotMarkedItems', {user: currentUser, roomId, num: prevNumber})
+                }
+            }
         }
     };
 
@@ -232,7 +252,7 @@ export default function LotoGame() {
                                   disabled={!isRoomAuthor}
                           >START</Button>
                       </Grid>
-                      : <BlockOfExpectedNumbers expectedNumber={expectedNumber}/>
+                      : <BlockOfExpectedNumbers currentNumber={currentNumber}/>
               }
               {
                   clonedData?.length
